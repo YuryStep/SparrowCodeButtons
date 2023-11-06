@@ -8,7 +8,7 @@
 import UIKit
 
 final class CustomButton: UIButton {
-    private struct Constants {
+    private enum Constants {
         static let imageName = "arrow.right.circle.fill"
         static let fontSize: CGFloat = 16
         static let verticalContentPadding: CGFloat = 10
@@ -28,33 +28,32 @@ final class CustomButton: UIButton {
         fatalError("init(coder:) has not been implemented")
     }
 
-    var baseColor: UIColor { self.tintAdjustmentMode == .dimmed ? .systemGray2 : .systemBlue }
-    var imageAndTextColor: UIColor { self.tintAdjustmentMode == .dimmed ? .systemGray3 : .white }
+    private var baseColor: UIColor { self.tintAdjustmentMode == .dimmed ? .systemGray2 : .systemBlue }
+    private var imageAndTextColor: UIColor { self.tintAdjustmentMode == .dimmed ? .systemGray3 : .white }
 
     private func configureButton(withText text: String) {
         translatesAutoresizingMaskIntoConstraints = false
-        setTitle(text, for: .normal)
         titleLabel?.font = UIFont.systemFont(ofSize: Constants.fontSize)
-        layer.cornerRadius = 10
 
         var customConfig = UIButton.Configuration.filled()
         customConfig.imagePlacement = .trailing
         customConfig.imagePadding = Constants.imagePadding
+        customConfig.cornerStyle = .medium
         customConfig.contentInsets = NSDirectionalEdgeInsets(
             top: Constants.verticalContentPadding,
             leading: Constants.horizontalContentPadding,
             bottom: Constants.verticalContentPadding,
             trailing: Constants.horizontalContentPadding
         )
+        configuration = customConfig
 
         configurationUpdateHandler = { button in
             let imageConfiguration = UIImage.SymbolConfiguration(hierarchicalColor: self.imageAndTextColor)
             button.configuration?.image = UIImage(systemName: Constants.imageName, withConfiguration: imageConfiguration)
+            button.configuration?.attributedTitle = AttributedString(
+                text, attributes: AttributeContainer([.foregroundColor : self.imageAndTextColor]))
             button.configuration?.background.backgroundColor = self.baseColor
-            button.titleLabel?.textColor = self.imageAndTextColor
         }
-
-        configuration = customConfig
     }
 
     private func setAnimation() {
